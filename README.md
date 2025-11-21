@@ -1,3 +1,53 @@
+# SpendLog 💸
+
+_Indie-grade expense clarity in under 10 seconds._
+
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwindcss&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?logo=google&logoColor=white)
+
+---
+
+## The Problem
+Most expense trackers are either clunky, over-designed, or gated behind subscriptions. I just wanted a lightweight way to see how much of my flow went to **Needs** (rent, groceries, survival) versus **Wants** (Lego drops, shiny gadgets). Manual spreadsheets weren’t sticking, and app store options felt like bloatware.
+
+## The Solution
+SpendLog is a personal PWA that lets me brain dump rough notes like “spent 50 on lego” and lets Google Gemini convert that chaos into structured expense data. It stays self-hosted, fast, and honest about where the money actually goes.
+
+## Features
+- 🧠 **AI-powered parsing** – paste messy sentences, skip the forms.
+- 🗂️ **Smart categorization** – auto labels every line as a Need or Want.
+- 🔐 **Privacy-first** – run it on your own stack, keep the data yours.
+- 📲 **PWA shell** – pin it on your phone, log spending anywhere.
+
+## Getting Started
+Clone and bootstrap your own SpendLog in minutes.
+
+```bash
+git clone https://github.com/tejalgoyal/spendlog.git
+cd spendlog
+npm install
+```
+
+Create `.env.local` and add:
+
+```
+GEMINI_API_KEY=your-google-gemini-key
+```
+
+Run the dev server:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000` and start logging.
+
+---
+
+## Original Next.js README
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
