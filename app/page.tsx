@@ -11,9 +11,9 @@ export default async function Home() {
     return redirect("/login");
   }
 
-  // Extract callsign from email (callsign@spendlog.app)
-  const callsign = user.email?.split('@')[0] || '';
-  const isAdmin = callsign.includes('admin') || callsign.includes('master');
+  // Extract callsign from email (callsign@spendlog.app) or metadata
+  const callsign = user.user_metadata?.callsign || user.email?.split('@')[0] || '';
+  const isAdmin = user.user_metadata?.callsign === 'Tejpol';
 
   // In a real app, we'd fetch expenses from Supabase here.
   // For now, we'll keep the client-side state in a separate client component wrapper 

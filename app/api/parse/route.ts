@@ -12,6 +12,7 @@ Each entry must include the following keys:
 - category (string)
 - type (string: "Need" or "Want")
 - date (string formatted as YYYY-MM-DD)
+- meme_search_term (string: a funny 2-3 word search term for a GIF representing this expense, e.g. "Burger drool" or "Money flying away")
 
 If a field is missing, infer it conservatively.
 Return ONLY the JSON array without code fences, explanations, or markdown.

@@ -5,6 +5,7 @@ import { ExpenseForm } from "@/components/expense-form";
 import { ExpenseTable, Expense } from "@/components/expense-table";
 import { SpendingChart } from "@/components/spending-chart";
 import { createClient } from "@/utils/supabase/client";
+import { motion } from "framer-motion";
 
 export function DashboardContent() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -31,7 +32,12 @@ export function DashboardContent() {
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
             <div className="md:col-span-1">
                 <ExpenseForm onExpenseAdded={handleExpenseAdded} />
             </div>
@@ -39,6 +45,6 @@ export function DashboardContent() {
                 <SpendingChart expenses={expenses} />
                 <ExpenseTable expenses={expenses} />
             </div>
-        </div>
+        </motion.div>
     );
 }
