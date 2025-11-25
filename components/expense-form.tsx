@@ -71,7 +71,7 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
             // Need to map back to Expense interface if DB columns differ
             const newExpenses = (data as any[]).map(row => ({
                 id: row.id,
-                item: row.item_name,
+                item_name: row.item_name,
                 amount: row.amount,
                 category: row.category,
                 type: row.type,

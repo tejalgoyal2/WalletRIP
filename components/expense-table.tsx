@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface Expense {
     id?: string | number;
-    item: string;
+    item_name: string;
     amount: number;
     category: string;
     type: "Need" | "Want";
@@ -50,7 +50,7 @@ export function ExpenseTable({ expenses }: ExpenseTableProps) {
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 font-medium text-zinc-900 dark:text-white">{expense.item}</td>
+                                    <td className="px-6 py-4 font-medium text-zinc-900 dark:text-white whitespace-normal break-words max-w-xs">{expense.item_name}</td>
                                     <td className="px-6 py-4 text-right">${expense.amount.toFixed(2)}</td>
                                 </tr>
                             ))
