@@ -122,7 +122,7 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                         {isLoading ? 'Processing...' : 'Add Expense'}
                     </button>
                     {funnyComment && (
-                        <div className="text-lg font-semibold text-center mt-6 text-amber-500 animate-in fade-in slide-in-from-top-2">
+                        <div className="text-lg italic font-medium text-center mt-6 text-amber-500 animate-in fade-in slide-in-from-top-2">
                             {funnyComment}
                         </div>
                     )}

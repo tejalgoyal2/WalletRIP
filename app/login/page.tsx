@@ -50,7 +50,17 @@ export default function LoginPage() {
             router.push('/')
             router.refresh()
         } catch (err: any) {
-            setError(err.message)
+            let message = err.message
+            if (message.includes('already registered') || message.includes('unique constraint')) {
+                const sarcasticMessages = [
+                    `Be original, '${callsign}' is already taken.`,
+                    "Identity theft is not a joke, pick another name.",
+                    `There can only be one '${callsign}'. Try '${callsign}_pro_max'.`,
+                    "Too slow! Someone already claimed that."
+                ]
+                message = sarcasticMessages[Math.floor(Math.random() * sarcasticMessages.length)]
+            }
+            setError(message)
         } finally {
             setLoading(false)
         }
@@ -63,8 +73,8 @@ export default function LoginPage() {
                     <button
                         onClick={() => setIsSignUp(false)}
                         className={`flex-1 py-4 text-sm font-medium transition-colors ${!isSignUp
-                                ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-b-2 border-zinc-900 dark:border-zinc-100'
-                                : 'bg-zinc-50 dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
+                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-b-2 border-zinc-900 dark:border-zinc-100'
+                            : 'bg-zinc-50 dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
                             }`}
                     >
                         Sign In
@@ -72,8 +82,8 @@ export default function LoginPage() {
                     <button
                         onClick={() => setIsSignUp(true)}
                         className={`flex-1 py-4 text-sm font-medium transition-colors ${isSignUp
-                                ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-b-2 border-zinc-900 dark:border-zinc-100'
-                                : 'bg-zinc-50 dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
+                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-b-2 border-zinc-900 dark:border-zinc-100'
+                            : 'bg-zinc-50 dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
                             }`}
                     >
                         Sign Up
