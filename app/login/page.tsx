@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 
 export default function LoginPage() {
     const [isSignUp, setIsSignUp] = useState(false)
@@ -11,6 +12,7 @@ export default function LoginPage() {
     const [inviteCode, setInviteCode] = useState('')
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const [shake, setShake] = useState(0)
     const router = useRouter()
     const supabase = createClient()
 
@@ -52,11 +54,13 @@ export default function LoginPage() {
         } catch (err: any) {
             let message = err.message
             if (message.includes('already registered') || message.includes('unique constraint')) {
+                setShake(prev => prev + 1)
                 const sarcasticMessages = [
-                    `Be original, '${callsign}' is already taken.`,
-                    "Identity theft is not a joke, pick another name.",
-                    `There can only be one '${callsign}'. Try '${callsign}_pro_max'.`,
-                    "Too slow! Someone already claimed that."
+                    `Bro, ${callsign} is already famous here. Try another.`,
+                    `Arey! ${callsign} pehle se hai. Kuch aur soch.`,
+                    `Our database only has budget for one ${callsign}.`,
+                    `Error 404: The name ${callsign} is taken. Try ${callsign}_pro_max.`,
+                    `Identity theft is not a joke, ${callsign}.`
                 ]
                 message = sarcasticMessages[Math.floor(Math.random() * sarcasticMessages.length)]
             }
@@ -100,7 +104,10 @@ export default function LoginPage() {
                             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                                 Callsign
                             </label>
-                            <input
+                            <motion.input
+                                key={shake}
+                                animate={{ x: shake ? [-10, 10, -10, 10, 0] : 0 }}
+                                transition={{ duration: 0.4 }}
                                 type="text"
                                 value={callsign}
                                 onChange={(e) => setCallsign(e.target.value)}
@@ -141,7 +148,7 @@ export default function LoginPage() {
                         )}
 
                         {error && (
-                            <div className="text-red-500 text-sm text-center bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                            <div className="text-amber-500 text-sm text-center italic font-medium mt-2">
                                 {error}
                             </div>
                         )}
