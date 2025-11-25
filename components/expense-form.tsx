@@ -36,7 +36,7 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
             const comment = parsedExpenses[0]?.funny_comment;
             if (comment) {
                 setFunnyComment(comment);
-                setTimeout(() => setFunnyComment(null), 5000);
+                setTimeout(() => setFunnyComment(null), 8000);
             }
 
             // Check if it's a valid expense
@@ -122,7 +122,7 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                         {isLoading ? 'Processing...' : 'Add Expense'}
                     </button>
                     {funnyComment && (
-                        <div className="text-lg font-medium text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 py-3 px-4 rounded-lg mt-4 text-center">
+                        <div className="text-lg font-semibold text-center mt-6 text-amber-500 animate-in fade-in slide-in-from-top-2">
                             {funnyComment}
                         </div>
                     )}
