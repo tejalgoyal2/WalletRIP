@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Expense } from './expense-table';
+import { createClient } from '@/utils/supabase/client';
 
 interface ExpenseFormProps {
     onExpenseAdded: (expenses: Expense[]) => void;
@@ -15,6 +16,7 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
 
         setIsLoading(true);
         try {
+            // 1. Parse with Gemini
             const response = await fetch('/api/parse', {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
@@ -25,12 +27,52 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                 throw new Error('Failed to parse expenses');
             }
 
-            const data = await response.json();
-            onExpenseAdded(data);
+            const parsedExpenses: Expense[] = await response.json();
+
+            // 2. Save to Supabase
+            const supabase = createClient();
+
+            // Map to DB schema (assuming column names: item_name, amount, category, type, date)
+            const dbExpenses = parsedExpenses.map(exp => ({
+                item_name: exp.item,
+                amount: exp.amount,
+                category: exp.category,
+                type: exp.type,
+                date: exp.date
+            }));
+
+            const { data, error } = await supabase
+                .from('expenses')
+                .insert(dbExpenses)
+                .select();
+
+            if (error) {
+                console.error('Supabase Insert Error:', error);
+                throw new Error('Database Error: ' + error.message);
+            }
+
+            // 3. Update UI
+            // Use the returned data from Supabase to ensure we have IDs and correct formatting if needed.
+            // But for now, we can just use the parsed data or the returned data.
+            // The prompt says "Pass the new expense data back up".
+            // Ideally we pass the data returned from Supabase which includes IDs.
+            // Assuming `data` is the inserted rows.
+
+            // Need to map back to Expense interface if DB columns differ
+            const newExpenses = (data as any[]).map(row => ({
+                id: row.id,
+                item: row.item_name,
+                amount: row.amount,
+                category: row.category,
+                type: row.type,
+                date: row.date
+            }));
+
+            onExpenseAdded(newExpenses);
             setNotes('');
-        } catch (error) {
-            console.error('Error parsing expenses:', error);
-            alert('Failed to process expenses. Please try again.');
+        } catch (error: any) {
+            console.error('Error processing expenses:', error);
+            alert(error.message || 'Failed to process expenses.');
         } finally {
             setIsLoading(false);
         }
