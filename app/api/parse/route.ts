@@ -7,12 +7,12 @@ const buildPrompt = (input: string) => `
 You are an assistant that only outputs valid JSON.
 Parse the user-provided expense text into a JSON array.
 Each entry must include the following keys:
-- item (string)
+- item_name (string: the name/description of the expense. Crucial: Do not use 'item'. Use 'item_name'.)
 - amount (number)
 - category (string)
 - type (string: "Need" or "Want")
 - date (string formatted as YYYY-MM-DD)
-- meme_search_term (string: a funny 2-3 word search term for a GIF representing this expense, e.g. "Burger drool" or "Money flying away")
+- funny_comment (string: a short, witty, subtle comment in 'Hinglish' (Indian/English mix) based on the expense. Examples: 'Paisa ped pe nahi ugta bro', 'Treat to banti hai', 'Kal se diet shuru'. Keep it short.)
 
 If a field is missing, infer it conservatively.
 Return ONLY the JSON array without code fences, explanations, or markdown.

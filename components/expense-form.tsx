@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Expense } from './expense-table';
 import { createClient } from '@/utils/supabase/client';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface ExpenseFormProps {
     onExpenseAdded: (expenses: Expense[]) => void;
@@ -10,14 +9,14 @@ interface ExpenseFormProps {
 export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
     const [notes, setNotes] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [memeUrl, setMemeUrl] = useState<string | null>(null);
+    const [funnyComment, setFunnyComment] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!notes.trim()) return;
 
         setIsLoading(true);
-        setMemeUrl(null); // Reset previous meme
+        setFunnyComment(null); // Reset previous comment
 
         try {
             // 1. Parse with Gemini
@@ -33,29 +32,19 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
 
             const parsedExpenses: any[] = await response.json();
 
-            // Extract meme term and fetch GIF
-            const term = parsedExpenses[0]?.meme_search_term;
-            if (term) {
-                const apiKey = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
-                if (apiKey) {
-                    fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=${encodeURIComponent(term)}&rating=pg-13`)
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.data?.images?.downsized_medium?.url) {
-                                setMemeUrl(data.data.images.downsized_medium.url);
-                                setTimeout(() => setMemeUrl(null), 4000);
-                            }
-                        })
-                        .catch(err => console.error('Failed to fetch GIF:', err));
-                }
+            // Extract funny comment
+            const comment = parsedExpenses[0]?.funny_comment;
+            if (comment) {
+                setFunnyComment(comment);
+                setTimeout(() => setFunnyComment(null), 5000);
             }
 
             // 2. Save to Supabase
             const supabase = createClient();
 
-            // Map to DB schema (assuming column names: item_name, amount, category, type, date)
+            // Map to DB schema
             const dbExpenses = parsedExpenses.map(exp => ({
-                item_name: exp.item,
+                item_name: exp.item_name, // Now matching API response
                 amount: exp.amount,
                 category: exp.category,
                 type: exp.type,
@@ -125,28 +114,13 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                     >
                         {isLoading ? 'Processing...' : 'Add Expense'}
                     </button>
+                    {funnyComment && (
+                        <p className="text-sm italic text-amber-500 text-center mt-2 font-medium">
+                            &quot;{funnyComment}&quot;
+                        </p>
+                    )}
                 </form>
             </div>
-
-            <AnimatePresence>
-                {memeUrl && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                    >
-                        <div className="w-full rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={memeUrl}
-                                alt="Reaction Meme"
-                                className="w-full h-48 object-cover"
-                            />
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }
