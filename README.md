@@ -34,14 +34,19 @@ Privacy is paramount.
 Built on **Supabase** with strict **Row Level Security (RLS)**. Your financial data is isolated, encrypted, and visible *only* to you.
 
 ## 👥 How to Join
-This is a private instance (I'm broke and can't pay for everyone's API usage), but you can join if you have the secret invite code.
+This is a private instance (I'm broke and can't pay for everyone's API usage), but you can join if you have an invite code.
 
 1. **Go to [walletRIP.vercel.app](https://walletrip.vercel.app)**
 2. **Click "Sign Up"**
 3. **Choose a Callsign**: This is your unique username. Be creative.
 4. **Set a Secret Code**: Must be at least 6 characters. Don't forget it; there is no "Forgot Password" link.
-5. **Enter Invite Code**: You need the key `GEMINI2025` to enter.
-6. **Start Tracking**: Type your expenses and let the judgment begin.
+5. **Enter Invite Code**: You need a key to enter.
+
+**Need a key? Slide into my DMs:**
+- 💼 **LinkedIn**: [Tejal Goyal](https://www.linkedin.com/in/tejalgoyal)
+- 📸 **Instagram**: [@teejpol](https://www.instagram.com/teejpol)
+
+*(I try to reply ASAP, but no guarantees. I have a life... mostly.)*
 
 *Want to run your own instance? Follow the setup guide below.*
 
