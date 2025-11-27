@@ -55,7 +55,8 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                 amount: exp.amount,
                 category: exp.category,
                 type: exp.type,
-                date: exp.date
+                date: exp.date,
+                emoji: exp.emoji
             }));
 
             const { data, error } = await supabase
@@ -82,7 +83,8 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                 amount: row.amount,
                 category: row.category,
                 type: row.type,
-                date: row.date
+                date: row.date,
+                emoji: row.emoji
             }));
 
             onExpenseAdded(newExpenses);

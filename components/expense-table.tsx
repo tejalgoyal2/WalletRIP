@@ -7,6 +7,7 @@ export interface Expense {
     category: string;
     type: "Need" | "Want";
     date: string;
+    emoji?: string;
 }
 
 interface ExpenseTableProps {
@@ -27,6 +28,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                 <table className="w-full text-sm text-left text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
                     <thead className="text-xs text-zinc-700 uppercase bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-400">
                         <tr>
+                            <th scope="col" className="px-6 py-3 w-12"></th>
                             <th scope="col" className="px-6 py-3">Date</th>
                             <th scope="col" className="px-6 py-3">Category</th>
                             <th scope="col" className="px-6 py-3">Description</th>
@@ -37,13 +39,14 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                     <tbody>
                         {expenses.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-zinc-500 dark:text-zinc-400">
+                                <td colSpan={6} className="px-6 py-8 text-center text-zinc-500 dark:text-zinc-400">
                                     No expenses added yet.
                                 </td>
                             </tr>
                         ) : (
                             expenses.map((expense, index) => (
                                 <tr key={expense.id || index} className="bg-white dark:bg-zinc-950 border-b dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                                    <td className="px-6 py-4 text-2xl">{expense.emoji || '💸'}</td>
                                     <td className="px-6 py-4">{expense.date}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex gap-2">
