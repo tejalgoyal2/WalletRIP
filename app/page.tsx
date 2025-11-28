@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { DashboardContent } from '@/components/dashboard-content'
 import { SignOutButton } from "@/components/sign-out-button"
+import { Github } from 'lucide-react'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -21,7 +22,16 @@ export default async function Home() {
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">SpendLog Dashboard</h1>
             {isAdmin && <span className="text-2xl" title="Admin Access">👑</span>}
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <a
+                href="https://github.com/tejalgoyal2/WalletRIP"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors p-2"
+                title="View Documentation"
+              >
+                <Github className="w-5 h-5" />
+              </a>
               <SignOutButton />
             </div>
           </div>
