@@ -165,11 +165,11 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                             onTouchStart={handleEvade}
                             disabled={isLoading || !notes.trim()}
                             className={`w-full py-2 px-4 font-medium rounded-md hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed absolute top-0 left-0 ${isPanic
-                                ? 'bg-red-600 text-white'
+                                ? 'bg-amber-600 text-white'
                                 : 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
                                 }`}
                         >
-                            {isLoading ? 'Processing...' : isPanic ? 'Are you sure??' : 'Add Expense'}
+                            {isLoading ? 'Processing...' : isPanic ? 'Really? 💸' : 'Add Expense'}
                         </motion.button>
                     </div>
                     {funnyComment && (
