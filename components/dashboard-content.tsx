@@ -5,6 +5,7 @@ import { ExpenseForm } from "@/components/expense-form";
 import { ExpenseTable, Expense } from "@/components/expense-table";
 import { SpendingChart } from "@/components/spending-chart";
 import { StreakCounter } from "@/components/streak-counter";
+import { CsvExport } from "@/components/csv-export";
 import { createClient } from "@/utils/supabase/client";
 import { motion } from "framer-motion";
 
@@ -49,7 +50,8 @@ export function DashboardContent() {
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-end">
+            <div className="flex justify-end items-center gap-4">
+                <CsvExport expenses={expenses} />
                 <StreakCounter expenses={expenses} />
             </div>
 

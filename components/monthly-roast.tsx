@@ -69,7 +69,7 @@ export function MonthlyRoast({ expenses }: MonthlyRoastProps) {
                                             {roast?.split(/(\*[^*]+\*)/g).map((part, index) => {
                                                 if (part.startsWith('*') && part.endsWith('*')) {
                                                     return (
-                                                        <span key={index} className="font-bold text-amber-600 dark:text-amber-500">
+                                                        <span key={index} className="font-bold">
                                                             {part.slice(1, -1)}
                                                         </span>
                                                     );
