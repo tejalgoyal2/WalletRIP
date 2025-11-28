@@ -42,6 +42,9 @@ Privacy is paramount.
 ### 🛡️ Military-Grade Security
 Built on **Supabase** with strict **Row Level Security (RLS)**. Your financial data is isolated, encrypted, and visible *only* to you.
 
+### 🎯 Zero-Hallucination Mode
+The AI is trained to *never guess prices*. If you say "I want a PS5", it won't log $500 automatically; it asks you for the price.
+
 ## 👥 How to Join
 This is a private instance (I'm broke and can't pay for everyone's API usage), but you can join if you have an invite code.
 
