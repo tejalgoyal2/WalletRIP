@@ -11,7 +11,6 @@
 [walletRIP.vercel.app](https://walletrip.vercel.app)
 
 ![WalletRIP Demo](public/demo.gif)
-*(See below on how to add this GIF!)*
 
 ## 🧐 The Vibe
 Most expense trackers are boring spreadsheets that feel like homework. **WalletRIP** is your wallet's conscience. It doesn't just track your spending; it judges it.
