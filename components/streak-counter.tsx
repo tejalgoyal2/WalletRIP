@@ -1,6 +1,7 @@
 import React from 'react';
 import { Expense } from './expense-table';
-import { differenceInCalendarDays, parseISO, subDays, isSameDay, format } from 'date-fns';
+import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { MicroCalendar } from './micro-calendar';
 
 interface StreakCounterProps {
     expenses: Expense[];
@@ -41,20 +42,16 @@ export function StreakCounter({ expenses }: StreakCounterProps) {
 
     const streak = calculateStreak();
 
-    // Generate last 7 days for the habit strip
-    const last7Days = Array.from({ length: 7 }, (_, i) => subDays(new Date(), 6 - i));
-
-    const hasExpenseOnDate = (date: Date) => {
-        return expenses.some(e => isSameDay(parseISO(e.date), date));
-    };
-
-    if (streak === 0 && expenses.length === 0) return null;
+    // If no data at all, maybe don't show anything? 
+    // Or show calendar anyway? Let's show calendar anyway if there are expenses, 
+    // but the prompt implies replacing the strip.
+    // If expenses is empty, calendar will be empty.
 
     return (
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
             {/* Fire Badge */}
             {streak > 0 && (
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 mt-1">
                     <span className="text-lg animate-pulse">🔥</span>
                     <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
                         {streak} Day Streak
@@ -62,25 +59,8 @@ export function StreakCounter({ expenses }: StreakCounterProps) {
                 </div>
             )}
 
-            {/* Habit Strip (Last 7 Days) */}
-            <div className="flex items-center gap-1.5">
-                {last7Days.map((date, i) => {
-                    const active = hasExpenseOnDate(date);
-                    return (
-                        <div
-                            key={i}
-                            title={format(date, 'MMM d')}
-                            className={`
-                                w-2.5 h-2.5 rounded-full transition-colors
-                                ${active
-                                    ? 'bg-green-500'
-                                    : 'bg-zinc-300 dark:bg-zinc-700 opacity-30'
-                                }
-                            `}
-                        />
-                    );
-                })}
-            </div>
+            {/* Micro Calendar */}
+            <MicroCalendar expenses={expenses} />
         </div>
     );
 }
