@@ -17,7 +17,6 @@ export function DashboardContent() {
         const fetchExpenses = async () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
-            console.log("User Metadata:", user?.user_metadata);
 
             const { data, error } = await supabase.from('expenses').select('*').order('date', { ascending: false });
 
