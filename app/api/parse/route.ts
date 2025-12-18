@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
 
-const MODEL_NAME = 'gemini-2.0-flash';
+const MODEL_NAME = 'gemini-2.0-flash-lite-preview-02-05';
 
 const buildPrompt = (input: string) => `
 You are an assistant that only outputs valid JSON.
