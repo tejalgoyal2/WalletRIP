@@ -18,12 +18,18 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
     const [data, setData] = useState<SubscriptionData | null>(null);
     const [error, setError] = useState<string | null>(null);
 
+    const handleClose = () => {
+        setIsOpen(false);
+        setData(null);
+        setError(null);
+    };
+
     const handleAnalyze = async () => {
         setIsOpen(true);
-        if (data) return; // Don't re-fetch if we already have data
-
         setIsLoading(true);
         setError(null);
+        setData(null);
+
         try {
             const response = await fetch('/api/analyze-subs', {
                 method: 'POST',
@@ -59,20 +65,28 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
 
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                        onClick={handleClose}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="subs-dialog-title"
+                    >
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
+                            onClick={(e) => e.stopPropagation()}
                             className="bg-white dark:bg-zinc-900 rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-zinc-200 dark:border-zinc-800"
                         >
                             <div className="p-6 space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                                    <h3 id="subs-dialog-title" className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                                         Subscription Detective 🕵️‍♂️
                                     </h3>
                                     <button
-                                        onClick={() => setIsOpen(false)}
+                                        onClick={handleClose}
+                                        aria-label="Close"
                                         className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
                                     >
                                         ✕
@@ -83,6 +97,16 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
                                     <div className="flex flex-col items-center justify-center py-8 gap-3 text-zinc-500">
                                         <span className="animate-spin text-3xl">🔍</span>
                                         <p className="text-sm">Scanning your financial history...</p>
+                                    </div>
+                                ) : error ? (
+                                    <div className="flex flex-col items-center gap-4 py-6 text-center">
+                                        <p className="text-sm text-red-500">{error}</p>
+                                        <button
+                                            onClick={handleAnalyze}
+                                            className="px-4 py-2 text-sm font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-md hover:opacity-90 transition-opacity"
+                                        >
+                                            Retry
+                                        </button>
                                     </div>
                                 ) : data ? (
                                     <div className="space-y-6">
@@ -114,14 +138,10 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
                                         {data.advice && (
                                             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900/50">
                                                 <p className="text-sm text-indigo-700 dark:text-indigo-300 italic">
-                                                    " {data.advice} "
+                                                    "{data.advice}"
                                                 </p>
                                             </div>
                                         )}
-                                    </div>
-                                ) : error ? (
-                                    <div className="text-center text-red-500 py-4 text-sm">
-                                        {error}
                                     </div>
                                 ) : null}
                             </div>

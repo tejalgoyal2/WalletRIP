@@ -50,15 +50,22 @@ export function MonthlyRoast({ expenses }: MonthlyRoastProps) {
 
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setIsOpen(false)}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="roast-dialog-title"
+                    >
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
+                            onClick={(e) => e.stopPropagation()}
                             className="bg-white dark:bg-zinc-900 rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-zinc-200 dark:border-zinc-800"
                         >
                             <div className="p-6 text-center space-y-4">
-                                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                                <h3 id="roast-dialog-title" className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                                     Performance Review 📋
                                 </h3>
 
