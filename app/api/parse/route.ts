@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, getRequestIp } from '@/utils/rate-limit';
 import { withRetry } from '@/utils/gemini-retry';
-
-const MODEL_NAME = 'gemini-2.5-flash-lite';
+import { getGeminiModel, PARSE_SAFETY_SETTINGS } from '@/lib/gemini';
 
 const buildPrompt = (input: string) => `
 You are an assistant that only outputs valid JSON.
@@ -44,110 +42,75 @@ Expense text:
 ${input.trim()}
 `;
 
-const stripCodeFences = (text: string) => {
-  const fencePattern = /```(?:json)?\s*([\s\S]*?)```/i;
-  const match = text.match(fencePattern);
-  if (match) {
-    return match[1].trim();
-  }
-  return text.trim();
+const stripCodeFences = (text: string): string => {
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  return match ? match[1].trim() : text.trim();
 };
 
+interface ParsedExpense {
+  is_expense: boolean;
+  item_name: string | null;
+  amount: number | null;
+  category: string | null;
+  type: 'Need' | 'Want' | null;
+  date: string | null;
+  emoji: string | null;
+  funny_comment: string;
+}
+
 export async function POST(req: Request) {
-  // Rate limiting
   const ip = getRequestIp(req);
   const { allowed, retryAfter } = checkRateLimit(ip);
   if (!allowed) {
     return NextResponse.json(
-      { error: `AI service is temporarily rate limited, try again in a minute.` },
-      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      { error: 'AI service is temporarily rate limited, try again in a minute.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } },
     );
   }
 
-  // Auth
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-
   if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Unauthorized. Please log in.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      { error: 'GEMINI_API_KEY is not configured.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
   }
 
   const body = (await req.text()).trim();
   if (!body) {
-    return NextResponse.json(
-      { error: 'Request body must contain expense text.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Request body must contain expense text.' }, { status: 400 });
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE, // Expense descriptions can trigger false positives
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-      ]
-    });
-
+    const model = getGeminiModel(apiKey, PARSE_SAFETY_SETTINGS);
     const result = await withRetry(() => model.generateContent(buildPrompt(body)));
-    const response = await result.response;
-    const raw = response.text();
-    const cleaned = stripCodeFences(raw);
-    const expenses = JSON.parse(cleaned);
+    const raw = result.response.text();
+    const expenses = JSON.parse(stripCodeFences(raw)) as ParsedExpense[];
 
     if (!Array.isArray(expenses)) {
       throw new Error('AI response was not a valid array.');
     }
 
-    // Fix missing date
     const today = new Date().toISOString().split('T')[0];
-    expenses.forEach((exp: any) => {
-      if (exp.is_expense && !exp.date) {
-        exp.date = today;
-      }
+    expenses.forEach((exp) => {
+      if (exp.is_expense && !exp.date) exp.date = today;
     });
 
     return NextResponse.json(expenses);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Unknown error occurred.';
+    const message = error instanceof Error ? error.message : 'Unknown error occurred.';
     console.error('[/api/parse] Gemini error:', {
       message,
-      status: (error as any)?.status,
-      statusText: (error as any)?.statusText,
-      errorDetails: (error as any)?.errorDetails,
-      full: error,
+      status: (error as { status?: number })?.status,
+      errorDetails: (error as { errorDetails?: unknown })?.errorDetails,
     });
-    const isRateLimited = (error as any)?.status === 429 || message.includes('429');
-    const clientMessage = isRateLimited
-      ? 'AI service is temporarily rate limited, try again in a minute.'
-      : `Parse failed: ${message}`;
-    return NextResponse.json({ error: clientMessage }, { status: isRateLimited ? 429 : 500 });
+    const isRateLimited = (error as { status?: number })?.status === 429 || message.includes('429');
+    return NextResponse.json(
+      { error: isRateLimited ? 'AI service is temporarily rate limited, try again in a minute.' : `Parse failed: ${message}` },
+      { status: isRateLimited ? 429 : 500 },
+    );
   }
 }

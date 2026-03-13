@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# dev scripts (contain local env path logic, not for CI)
+/scripts
 
 # vercel
 .vercel

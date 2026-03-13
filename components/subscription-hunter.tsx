@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Expense } from './expense-table';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,12 +16,14 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState<SubscriptionData | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const handleAnalyze = async () => {
         setIsOpen(true);
         if (data) return; // Don't re-fetch if we already have data
 
         setIsLoading(true);
+        setError(null);
         try {
             const response = await fetch('/api/analyze-subs', {
                 method: 'POST',
@@ -29,12 +31,17 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
                 body: JSON.stringify({ expenses }),
             });
 
-            if (!response.ok) throw new Error('Failed to analyze');
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || 'Failed to analyze');
+            }
 
             const result = await response.json();
             setData(result);
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to analyze subscriptions';
+            console.error('[SubscriptionHunter]', message);
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -112,11 +119,11 @@ export function SubscriptionHunter({ expenses }: SubscriptionHunterProps) {
                                             </div>
                                         )}
                                     </div>
-                                ) : (
-                                    <div className="text-center text-red-500 py-4">
-                                        Failed to load data.
+                                ) : error ? (
+                                    <div className="text-center text-red-500 py-4 text-sm">
+                                        {error}
                                     </div>
-                                )}
+                                ) : null}
                             </div>
                         </motion.div>
                     </div>

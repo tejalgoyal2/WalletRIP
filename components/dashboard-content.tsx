@@ -12,20 +12,26 @@ import { motion } from "framer-motion";
 
 export function DashboardContent() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchExpenses = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
+            try {
+                const supabase = createClient();
+                const { data, error } = await supabase
+                    .from('expenses')
+                    .select('*')
+                    .order('date', { ascending: false });
 
-            const { data, error } = await supabase.from('expenses').select('*').order('date', { ascending: false });
-
-            if (error) {
-                console.error('Error fetching expenses:', error);
-            } else if (data) {
-                // Ensure data matches Expense type. Supabase returns any[], so we might need casting or validation.
-                // For now, assuming the DB schema matches the frontend type.
+                if (error) throw error;
                 setExpenses(data as unknown as Expense[]);
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to load expenses';
+                console.error('[DashboardContent] fetch error:', message);
+                setFetchError(message);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -41,12 +47,29 @@ export function DashboardContent() {
         const { error } = await supabase.from('expenses').delete().eq('id', id);
 
         if (error) {
-            console.error('Error deleting expense:', error);
+            console.error('[DashboardContent] delete error:', error);
             alert('Failed to delete expense');
         } else {
             setExpenses((prev) => prev.filter((e) => e.id !== id));
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center py-24 text-zinc-400">
+                <span className="animate-spin mr-3 text-2xl">⏳</span>
+                Loading your expenses...
+            </div>
+        );
+    }
+
+    if (fetchError) {
+        return (
+            <div className="flex items-center justify-center py-24 text-red-500 text-sm">
+                Failed to load expenses: {fetchError}
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
@@ -67,7 +90,6 @@ export function DashboardContent() {
                 </div>
                 <div className="md:col-span-2 space-y-8">
                     <SpendingChart expenses={expenses} />
-
                     <ExpenseTable expenses={expenses} onDelete={handleDeleteExpense} />
                 </div>
             </motion.div>

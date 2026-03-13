@@ -1,4 +1,3 @@
-import React from 'react';
 import { Expense } from './expense-table';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 

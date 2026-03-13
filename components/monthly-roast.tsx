@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Expense } from './expense-table';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -23,12 +23,16 @@ export function MonthlyRoast({ expenses }: MonthlyRoastProps) {
                 body: JSON.stringify({ expenses }),
             });
 
-            if (!response.ok) throw new Error('Failed to get roasted');
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || 'Failed to get roasted');
+            }
 
             const data = await response.json();
             setRoast(data.roast);
         } catch (error) {
-            console.error(error);
+            const message = error instanceof Error ? error.message : 'Failed to get roasted';
+            console.error('[MonthlyRoast]', message);
             setRoast("The AI is too stunned by your spending to speak. Try again later.");
         } finally {
             setIsLoading(false);

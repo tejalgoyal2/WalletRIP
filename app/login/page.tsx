@@ -41,12 +41,6 @@ export default function LoginPage() {
                 })
                 if (signUpError) throw signUpError
 
-                // Auto sign in after sign up or show success message
-                // For simplicity, we'll try to sign in immediately or let the user know
-                // But usually signUp returns a session if email confirmation is off.
-                // If email confirmation is on, they can't login yet. 
-                // Assuming email confirmation is OFF for this "Zero-Cost" setup or we just handle the flow.
-
             } else {
                 const { error: signInError } = await supabase.auth.signInWithPassword({
                     email,
