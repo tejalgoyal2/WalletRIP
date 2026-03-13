@@ -1,11 +1,23 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
+import { checkRateLimit, getRequestIp } from '@/utils/rate-limit';
+import { withRetry } from '@/utils/gemini-retry';
 
-const MODEL_NAME = 'gemini-2.0-flash-lite-preview-02-05';
+const MODEL_NAME = 'gemini-2.5-flash-lite';
 
 export async function POST(req: Request) {
-    // 1. Security: Check Auth
+    // Rate limiting
+    const ip = getRequestIp(req);
+    const { allowed, retryAfter } = checkRateLimit(ip);
+    if (!allowed) {
+        return NextResponse.json(
+            { error: 'AI service is temporarily rate limited, try again in a minute.' },
+            { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+        );
+    }
+
+    // Auth
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -50,24 +62,24 @@ export async function POST(req: Request) {
 
         const prompt = `
         Analyze these expenses to identify potential recurring subscriptions (e.g., Netflix, Spotify, Gym, iCloud, or same amount recurring monthly).
-        
+
         Expenses:
         ${expenseSummary}
 
         Return a JSON object with this EXACT structure (no markdown, just raw JSON):
-        { 
+        {
             "subscriptions": [
                 { "name": "Service Name", "amount": 0.00, "frequency": "Monthly/Yearly" }
-            ], 
-            "total_monthly_cost": 0.00, 
-            "advice": "Short advice on managing these subscriptions." 
+            ],
+            "total_monthly_cost": 0.00,
+            "advice": "Short advice on managing these subscriptions."
         }
         `;
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-        const result = await model.generateContent(prompt);
+        const result = await withRetry(() => model.generateContent(prompt));
         const response = await result.response;
         const text = response.text();
 
@@ -78,10 +90,21 @@ export async function POST(req: Request) {
         return NextResponse.json(data);
 
     } catch (error) {
-        console.error('Subscription Analysis Error:', error);
+        const message = error instanceof Error ? error.message : 'Unknown error occurred.';
+        console.error('[/api/analyze-subs] Gemini error:', {
+            message,
+            status: (error as any)?.status,
+            statusText: (error as any)?.statusText,
+            errorDetails: (error as any)?.errorDetails,
+            full: error,
+        });
+        const isRateLimited = (error as any)?.status === 429 || message.includes('429');
+        const clientMessage = isRateLimited
+            ? 'AI service is temporarily rate limited, try again in a minute.'
+            : `Failed to analyze subscriptions: ${message}`;
         return NextResponse.json(
-            { error: 'Failed to analyze subscriptions.' },
-            { status: 500 }
+            { error: clientMessage },
+            { status: isRateLimited ? 429 : 500 }
         );
     }
 }

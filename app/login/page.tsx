@@ -25,8 +25,14 @@ export default function LoginPage() {
             const email = `${callsign.toLowerCase().replace(/\s+/g, '')}@spendlog.app`
 
             if (isSignUp) {
-                if (inviteCode !== 'GEMINI2025') {
-                    throw new Error('Invalid Invite Code')
+                const inviteRes = await fetch('/api/validate-invite', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: inviteCode }),
+                });
+                if (!inviteRes.ok) {
+                    const data = await inviteRes.json().catch(() => ({}));
+                    throw new Error(data.error || 'Invalid Invite Code');
                 }
 
                 const { error: signUpError } = await supabase.auth.signUp({

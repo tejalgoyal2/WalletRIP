@@ -13,7 +13,8 @@ export default async function Home() {
   }
 
   const callsign = user.user_metadata?.callsign || user.email?.split('@')[0] || 'User'
-  const isAdmin = user.email?.toLowerCase().startsWith('tejpol@')
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const isAdmin = !!adminEmail && user.email?.toLowerCase() === adminEmail.toLowerCase()
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8 bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100">

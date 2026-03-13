@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
+import { checkRateLimit, getRequestIp } from '@/utils/rate-limit';
+import { withRetry } from '@/utils/gemini-retry';
 
-const MODEL_NAME = 'gemini-2.0-flash-lite-preview-02-05';
+const MODEL_NAME = 'gemini-2.5-flash-lite';
 
 const buildPrompt = (input: string) => `
 You are an assistant that only outputs valid JSON.
@@ -52,7 +54,17 @@ const stripCodeFences = (text: string) => {
 };
 
 export async function POST(req: Request) {
-  // 1. Security: Check Auth
+  // Rate limiting
+  const ip = getRequestIp(req);
+  const { allowed, retryAfter } = checkRateLimit(ip);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: `AI service is temporarily rate limited, try again in a minute.` },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
+  // Auth
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -86,24 +98,24 @@ export async function POST(req: Request) {
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
         },
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_NONE, // Expense descriptions can trigger false positives
         },
         {
           category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
         },
         {
           category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
         },
       ]
     });
 
-    const result = await model.generateContent(buildPrompt(body));
+    const result = await withRetry(() => model.generateContent(buildPrompt(body)));
     const response = await result.response;
     const raw = response.text();
     const cleaned = stripCodeFences(raw);
@@ -125,7 +137,17 @@ export async function POST(req: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unknown error occurred.';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[/api/parse] Gemini error:', {
+      message,
+      status: (error as any)?.status,
+      statusText: (error as any)?.statusText,
+      errorDetails: (error as any)?.errorDetails,
+      full: error,
+    });
+    const isRateLimited = (error as any)?.status === 429 || message.includes('429');
+    const clientMessage = isRateLimited
+      ? 'AI service is temporarily rate limited, try again in a minute.'
+      : `Parse failed: ${message}`;
+    return NextResponse.json({ error: clientMessage }, { status: isRateLimited ? 429 : 500 });
   }
 }
-

@@ -55,7 +55,8 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to parse expenses');
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || 'Failed to parse expenses');
             }
 
             const parsedExpenses: any[] = await response.json();
