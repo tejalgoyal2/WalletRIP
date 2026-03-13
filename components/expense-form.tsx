@@ -147,14 +147,15 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
                         <label htmlFor="notes" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                             Notes
                         </label>
-                        <textarea
+                        <input
                             id="notes"
-                            rows={4}
+                            type="text"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            className="w-full p-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                            placeholder="e.g. Spent $15 on lunch at Joe's"
+                            className="w-full p-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g. coffee at starbucks $6"
                             disabled={isLoading}
+                            autoComplete="off"
                         />
                     </div>
                     <div className="relative h-12">
