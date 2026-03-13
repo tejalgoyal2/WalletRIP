@@ -1,99 +1,207 @@
-# WalletRIP 💸
+# WalletRIP
 
-![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js_16-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Gemini AI](https://img.shields.io/badge/Gemini_AI-8E75B2?style=for-the-badge&logo=google-bard&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Gemini_2.5-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 
 > **Stop lying to yourself about where the money went.**
 
-## 🔗 Live Demo
-[walletRIP.vercel.app](https://walletrip.vercel.app)
+WalletRIP is a personal expense tracker that uses AI to parse natural language into structured expense data. Type what you spent in plain English, and the app categorizes it, detects the currency, and logs it instantly. It also roasts your spending habits in Hinglish, detects recurring subscriptions, and generates AI-powered spending insights.
 
-![WalletRIP Demo](public/demo.gif)
+**Live at** [wallet.tgoyal.me](https://wallet.tgoyal.me)
 
-## 🧐 The Vibe
-Most expense trackers are boring spreadsheets that feel like homework. **WalletRIP** is your wallet's conscience. It doesn't just track your spending; it judges it.
+---
 
-It’s built for speed, privacy, and brutal honesty.
+## What It Does
 
-## ✨ Key Features
+**Natural language expense logging.** No forms, no dropdowns. Type `"coffee at starbucks $5"` or `"uber to airport 34 usd"` and the AI handles the rest — amount extraction, currency conversion to CAD, category assignment, and need/want classification.
 
-### 🧠 The AI Brain
-Forget forms. Just type naturally: *"Spent 50 on pizza"* or *"Uber to work 25"*. The integrated AI parses the context, categorizes it, and logs it instantly. No local processing—everything happens in the cloud for maximum efficiency.
+**AI spending insights.** On-demand Gemini-generated analysis of your last 30 days: top categories, need/want ratio trends, and specific observations about your spending patterns.
 
-### ⚖️ The Sarcastic Judge
-If you spend money on "Needs" (Rent, Groceries), it stays quiet. If you blow cash on "Wants" (Lego, overpriced coffee), it delivers a sarcastic reality check. It keeps you humble.
+**Spending roasts.** A sarcastic AI-generated commentary on your monthly spending, delivered in Hinglish. Triggered manually — not on every page load.
 
-### 🔧 Under the Hood: The Engineering
-We don't just ask Gemini to "read this." We feed it a strict system prompt that enforces:
-1.  **JSON Schema Validation**: Ensures data is always clean for the database (no more "misc" categories).
-2.  **Context Injection**: The AI is told it's a "Sarcastic Canadian Accountant." It knows 50 CAD is a normal lunch but 500 CAD is a crime.
-3.  **Creative Temperature**: We dial up the creativity for the `funny_comment` field while keeping the `amount` and `date` fields strictly deterministic.
+**Subscription detection.** Paste your expenses and let Gemini identify recurring charges you might have forgotten about.
 
-### 👻 Ghost Protocol Auth
-Privacy is paramount.
-- **No Email Required**: We don't want your spam address.
-- **No Phone Numbers**: We don't want to text you.
-- **Callsign Access**: Just pick a unique **Callsign** (username) and a **Secret Code**.
-- **Universal Sync**: Access your data securely from any device—Mobile, Tablet, or Desktop.
+**Bulk import.** Paste raw bank statement text or a list of expenses, and the AI parses them all at once. Preview before importing, select/deselect individual items, then bulk insert.
 
-### 🛡️ Military-Grade Security
-Built on **Supabase** with strict **Row Level Security (RLS)**. Your financial data is isolated, encrypted, and visible *only* to you.
+**Spending trends.** Stacked bar chart showing Needs vs Wants over time, with weekly and monthly toggle. Built on Recharts.
 
-### 🎯 Zero-Hallucination Mode
-The AI is trained to *never guess prices*. If you say "I want a PS5", it won't log $500 automatically; it asks you for the price.
+**Mobile-first.** Add to your iPhone/Android home screen as a PWA. The entire UI is optimized for quick-log on mobile — open, type, done.
 
-### � Install on Mobile (PWA)
-WalletRIP works best as a native app on your phone.
-- **iOS (iPhone)**: Open Safari -> Tap Share -> Tap "Add to Home Screen".
-- **Android**: Open Chrome -> Tap Menu (3 dots) -> Tap "Install App".
+---
 
+## Tech Stack
 
-## �👥 How to Join
-This is a private instance (I'm broke and can't pay for everyone's API usage), but you can join if you have an invite code.
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Runtime | React 19 |
+| Language | TypeScript 5 |
+| Styling | Tailwind CSS v4 + Framer Motion |
+| Charts | Recharts |
+| AI | Google Gemini 2.5 Flash-Lite via `@google/generative-ai` |
+| Auth + DB | Supabase (PostgreSQL, Row Level Security, SSR auth) |
+| Deployment | Cloudflare Pages |
+| Domain | wallet.tgoyal.me (via Cloudflare DNS) |
 
-1. **Go to [walletRIP.vercel.app](https://walletrip.vercel.app)**
-2. **Click "Sign Up"**
-3. **Choose a Callsign**: This is your unique username. Be creative.
-4. **Set a Secret Code**: Must be at least 6 characters. Don't forget it; there is no "Forgot Password" link.
-5. **Enter Invite Code**: You need a key to enter.
+---
 
-**Need a key? Slide into my DMs:**
-- 💼 **LinkedIn**: [Tejal Goyal](https://www.linkedin.com/in/tejalgoyal)
-- 📸 **Instagram**: [@teejpol](https://www.instagram.com/teejpol)
+## Security
 
-*(I try to reply ASAP, but no guarantees. I have a life... mostly.)*
+This is a public repo, so security was treated seriously:
 
-*Want to run your own instance? Follow the setup guide below.*
+- **Server-side invite code validation.** The invite code gate is enforced via an API route (`/api/validate-invite`), not in client-side JavaScript. The code is stored in an environment variable, never shipped in the browser bundle.
+- **Row Level Security (RLS).** All Supabase queries are scoped to the authenticated user. No user can read, modify, or delete another user's data.
+- **Per-IP rate limiting.** All AI-powered API routes share a 20 req/min per-IP limit to prevent quota abuse.
+- **Input sanitization.** Expense descriptions are stripped of HTML, script tags, and control characters before being sent to Gemini to mitigate prompt injection.
+- **Exponential backoff retry.** All Gemini calls use a 3-retry strategy (2s/4s/8s) on 429 and 503 errors with user-friendly error messages.
+- **No secrets in source.** All credentials are in `.env.local` (gitignored). A `.env.example` documents every required variable.
+- **Gemini safety filters.** Hate speech, sexually explicit, and dangerous content filters are set to `BLOCK_MEDIUM_AND_ABOVE`. Harassment is set to `BLOCK_NONE` to avoid false positives on expense descriptions.
+- **Admin role via env var.** Admin UI features are gated by a full email match stored in an environment variable, not a hardcoded string.
 
-## 🛠️ The Stack
-- **Framework**: Next.js 15 (App Router)
-- **Database**: Supabase (PostgreSQL)
-- **Styling**: Tailwind CSS + Framer Motion
-- **Intelligence**: Google Gemini 1.5 Flash
+---
 
-## 🚀 Getting Started (Self-Host)
+## Architecture
 
-### 1. Clone & Install
+```
+Client (React 19)
+  |
+  |-- expense-form.tsx -----> POST /api/parse ---------> Gemini 2.5 Flash-Lite
+  |-- insights-card.tsx ----> POST /api/insights ------> Gemini 2.5 Flash-Lite
+  |-- monthly-roast.tsx ----> POST /api/roast ----------> Gemini 2.5 Flash-Lite
+  |-- subscription-hunter --> POST /api/analyze-subs ---> Gemini 2.5 Flash-Lite
+  |-- bulk-import-modal ----> POST /api/parse ---------> Gemini 2.5 Flash-Lite
+  |
+  |-- All routes: auth check + rate limit + retry + sanitize
+  |
+  |-- Supabase (PostgreSQL + RLS)
+       |-- expenses table (user-scoped)
+       |-- auth.users (callsign-based, no email required)
+```
+
+All AI calls are server-side only. The Gemini API key never reaches the client.
+
+---
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18+
+- A [Supabase](https://supabase.com) project (free tier works)
+- A [Google AI Studio](https://aistudio.google.com/apikey) API key (free tier: 1,000 req/day on Flash-Lite)
+
+### Setup
+
 ```bash
 git clone https://github.com/tejalgoyal2/WalletRIP.git
 cd WalletRIP
 npm install
+cp .env.example .env.local
 ```
 
-### 2. Environment Setup
-Create a `.env.local` file:
+Fill in `.env.local`:
+
 ```env
-GEMINI_API_KEY=...
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+# Supabase — supabase.com > your project > Settings > API
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+
+# Google AI — aistudio.google.com/apikey
+GEMINI_API_KEY=AIza...
+
+# App config
+INVITE_CODE=your-invite-code
+ADMIN_EMAIL=you@example.com
 ```
 
-### 3. Run Locally
+### Run
+
 ```bash
 npm run dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000).
+
 ---
-Built with 🖤 and absolute chaos by **Tejal**.
+
+## Supabase Schema
+
+The app expects an `expenses` table with RLS enabled:
+
+```sql
+create table expenses (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade,
+  description text not null,
+  amount numeric not null,
+  category text not null,
+  type text not null check (type in ('Need', 'Want')),
+  funny_comment text,
+  date date not null default current_date,
+  created_at timestamptz default now()
+);
+
+-- Row Level Security
+alter table expenses enable row level security;
+
+create policy "Users can view own expenses"
+  on expenses for select using (auth.uid() = user_id);
+
+create policy "Users can insert own expenses"
+  on expenses for insert with check (auth.uid() = user_id);
+
+create policy "Users can delete own expenses"
+  on expenses for delete using (auth.uid() = user_id);
+```
+
+---
+
+## Mobile Install (PWA)
+
+WalletRIP is designed for quick-log from your phone home screen.
+
+- **iOS**: Safari > Share > Add to Home Screen
+- **Android**: Chrome > Menu (three dots) > Install App
+
+---
+
+## Version History
+
+### v2.0.0 (March 2026)
+- Migrated from Gemini 2.0 Flash (deprecated) to Gemini 2.5 Flash-Lite
+- Security hardening: server-side invite code, rate limiting, input sanitization, retry logic
+- Replaced all `alert()` calls with toast notifications
+- Mobile-responsive expense cards (card layout on mobile, table on desktop)
+- AI Spending Insights — on-demand Gemini analysis of your last 30 days
+- Spending Trends — stacked Needs vs Wants bar chart with weekly/monthly toggle
+- Bulk Import — paste bank statements, AI parses, preview and confirm
+- Accessibility: ARIA labels, dialog roles, focus management, removed viewport zoom lock
+- Natural language input discoverability: rotating placeholders, helper text
+- Backdrop click to close on all modals
+- Shared Gemini utility (`lib/gemini.ts`) eliminating config duplication across routes
+- TypeScript strictness improvements: removed `any` types, added interfaces
+
+### v1.0.0 (December 2025)
+- Initial release
+- Natural language expense parsing via Gemini
+- Needs vs Wants donut chart
+- Monthly spending roast in Hinglish
+- Subscription detection
+- Callsign-based auth (no email required)
+- CSV export
+- Panic Mode for impulse buy shaming
+
+---
+
+## Access
+
+This is a private instance. You need an invite code to sign up.
+
+**Want access?**
+- [LinkedIn](https://www.linkedin.com/in/tejalgoyal)
+- [Instagram](https://www.instagram.com/teejpol)
+
+Want to run your own instance? Follow the local development guide above.
